@@ -48,7 +48,7 @@ class Example(QWidget):
 
         combo.activated[str].connect(self.onActivated)        
          
-        self.setGeometry(300, 300, 300, 200)
+        self.setGeometry(300, 300, 500, 400)
         self.setWindowTitle('QComboBox')
         self.show()
         
