@@ -7,12 +7,19 @@ from nltk.util import ngrams
 import random
 from urllib import request
 import re
+import os
+import glob
+import io
+import encodings
+import pkgutil
+import csv
 
 austen_corpus =  ''
 chesterson_corpus = ''
 
 
-def count_and_prob(corpus, count, prob):
+# Returns counts and probabilities of a corpus using bigrames
+def count_and_prob_bigram(corpus, count, prob):
 	count2 = {}
 	# Count bigrams and instantiate probability for each word to 0
 	for word1, word2 in nltk.bigrams(corpus):
@@ -87,59 +94,183 @@ def gen_next_word(word, prob_dict):
 				total += boundary[i]
 				# print('look again')
 
-def get_links(): 
+'''
+	Fills an empty list with the corpuses of the 5 authores
+'''
+def get_links(complete_corpus): 
 
-	austen_links = ["http://www.gutenberg.org/cache/epub/42671/pg42671.txt","http://www.gutenberg.org/cache/epub/42671/pg42671.txt",
+	austen_links = ["http://www.gutenberg.org/cache/epub/42671/pg42671.txt",
 	               "https://www.gutenberg.org/files/1212/1212-0.txt", "https://www.gutenberg.org/files/141/141-0.txt", 
-	                "https://www.gutenberg.org/files/121/121-0.txt", "https://www.gutenberg.org/files/121/121-0.txt", 
+	                "https://www.gutenberg.org/files/121/121-0.txt", 
 	                "http://www.gutenberg.org/cache/epub/161/pg161.txt", "http://www.gutenberg.org/cache/epub/946/pg946.txt"]
 
-	response = request.urlopen(url)
+	#response = request.urlopen(url)
 
-	austen_corpus = ""
+	austen_corpus = []
 
 	for link in austen_links: 
 	    response = request.urlopen(link)
-	    austen_corpus += response.read().decode('utf8')
+	    text = response.read().decode('utf8')
+	    tokens = nltk.word_tokenize(text)
+	    austen_corpus.append(tokens)
 
+	complete_corpus.append(austen_corpus)
 	# austen_corpus[:100]
 
 	# G.K. Chesterton
-	chesterton_links = ["http://www.gutenberg.org/files/1717/1717-h/1717-h.htm", "http://www.gutenberg.org/files/11505/11505-h/11505-h.htm", 
-	                   'http://www.gutenberg.org/cache/epub/1720/pg1720-images.html','http://www.gutenberg.org/files/20897/20897-h/20897-h.htm'
-	                   'http://www.gutenberg.org/files/11339/11339-h/11339-h.htm', 'http://www.gutenberg.org/files/470/470-h/470-h.htm',
-	                   'http://www.gutenberg.org/files/16769/16769-h/16769-h.htm','http://www.gutenberg.org/files/5265/5265-h/5265-h.htm']
+	chesterton_links = ["http://www.gutenberg.org/files/1717/1717-0.txt", "http://www.gutenberg.org/cache/epub/11505/pg11505.txt", 
+	                   'http://www.gutenberg.org/cache/epub/1720/pg1720.txt','http://www.gutenberg.org/cache/epub/20897/pg20897.txt',
+	                   'http://www.gutenberg.org/cache/epub/11339/pg11339.txt', 'http://www.gutenberg.org/cache/epub/470/pg470.txt',
+	                   'https://www.gutenberg.org/files/16769/16769-0.txt','https://www.gutenberg.org/files/5265/5265-0.txt']
 
+	chesterton_corpus = [] 
+	                
 	for link in chesterton_links: 
 	    response = request.urlopen(link)
-	    chesterton_corpus += response.read().decode('utf8')
+	    text += response.read().decode('utf8')
+	    tokens = nltk.word_tokenize(text)
+	    chesterton_corpus.append(tokens)
 
-	# Shakespeare
-	# Complete works:
-	shakespeare_links = ['http://www.gutenberg.org/files/100/100-h/100-h.htm']
+	complete_corpus.append(chesterton_corpus)
+	# Shakespeare Complete works:
+	
+	shakespeare_corpus = []
+	 
+	shakespeare_links = ['https://www.gutenberg.org/files/100/100-0.txt']
 
 	for link in shakespeare_links: 
 	    response = request.urlopen(link)
-	    shakespeare_corpus += response.read().decode('utf8')
+	    text += response.read().decode('utf8')
+	    tokens = nltk.word_tokenize(text)
+	    shakespeare_corpus.append(tokens)
 
-
+	complete_corpus.append(shakespeare_corpus)   					
 	# Sir Arthur Conan Doyle
-	doyle_links = ['http://www.gutenberg.org/files/1661/1661-h/1661-h.htm','http://www.gutenberg.org/files/2852/2852-h/2852-h.htm',
-	              'http://www.gutenberg.org/files/244/244-h/244-h.htm', 'http://www.gutenberg.org/files/2097/2097-h/2097-h.htm',
-	              'http://www.gutenberg.org/files/834/834-h/834-h.htm', 'http://www.gutenberg.org/files/108/108-h/108-h.htm', 
-	              'http://www.gutenberg.org/files/2350/2350-h/2350-h.htm', 'http://www.gutenberg.org/files/537/537-h/537-h.htm']
+	doyle_links = ['http://www.gutenberg.org/cache/epub/1661/pg1661.txt','https://www.gutenberg.org/files/2852/2852-0.txt',
+	              'https://www.gutenberg.org/files/244/244-0.txt', 'http://www.gutenberg.org/cache/epub/2097/pg2097.txt',
+	              'https://www.gutenberg.org/files/834/834-0.txt', 'https://www.gutenberg.org/files/108/108-0.txt', 
+	              'http://www.gutenberg.org/cache/epub/139/pg139.txt', 'https://www.gutenberg.org/files/3289/3289-0.txt']
+
+	doyle_corpus = []
 
 	for link in doyle_links: 
 	    response = request.urlopen(link)
-	    doyle_corpus += response.read().decode('utf8')
+	    text += response.read().decode('utf8')
+	    tokens = nltk.word_tokenize(text)
+	    doyle_corpus.append(tokens)
 
+	complete_corpus.append(doyle_corpus)
 	# Fyodor Doestevsky 
-	doestevsky_links = ['http://www.gutenberg.org/files/28054/28054-h/28054-h.html', 'http://www.gutenberg.org/files/8578/8578-h/8578-h.htm', 
-	                   'http://www.gutenberg.org/files/2638/2638-h/2638-h.htm', 'http://www.gutenberg.org/files/36034/36034-h/36034-h.htm',
-	                   'https://www.gutenberg.org/files/2554/2554-h/2554-h.htm','http://www.gutenberg.org/files/2302/2302-h/2302-h.htm',
-	                   'http://www.gutenberg.org/files/8117/8117-h/8117-h.htm']
+	doestevsky_links = ['https://www.gutenberg.org/files/28054/28054-0.txt', 'http://www.gutenberg.org/cache/epub/600/pg600.txt', 
+	                   'https://www.gutenberg.org/files/2638/2638-0.txt', 'http://www.gutenberg.org/cache/epub/8578/pg8578.txt',
+	                   'https://www.gutenberg.org/files/8117/8117-0.txt','http://www.gutenberg.org/cache/epub/36034/pg36034.txt',
+	                   'https://www.gutenberg.org/files/2302/2302-0.txt', 'https://www.gutenberg.org/files/2554/2554-0.txt']
+
+	doestevsky_corpus = []                   
 
 	for link in doestevsky_links: 
 	    response = request.urlopen(link)
-	    doestevsky_corpus += response.read().decode('utf8')
+	    text += response.read().decode('utf8')
+	    tokens = nltk.word_tokenize(text)
+	    dostevsky_corpus.append(tokens)
+
+	complete_corpus.append(dostevsky_corpus)
+	return complete_corpus
+
+
+def all_encodings():
+    modnames = set(
+        [modname for importer, modname, ispkg in pkgutil.walk_packages(
+            path=[os.path.dirname(encodings.__file__)], prefix='')])
+    aliases = set(encodings.aliases.aliases.values())
+    return modnames.union(aliases)
+
+
+# TODO: Preprocessing
+# 	* remove headers/footers/links/non-english characters
+# 	* check formatting? (Dostoyevsky?)
+
+def get_text_local(complete_corpus): 
+	authors = ['Jane Austen', 'G.K. Chesterton', 'William Shakespeare', 'Sir Arthur Conan Doyle', 'Fyodor Dostoyevsky']
+	
+	# Could streamline this to loops later? 
+	# complete_corpus = [[]]
+	count = 0
+
+	path = '/Users/viviantan/Documents/Spring2018/LIN_353C/Project/texts/austen/'
+	austen_tokens = []
+	for filename in os.listdir(path):
+		file_content = open(path+filename, encoding='cp437').read()
+		tokens = nltk.word_tokenize(file_content)
+		austen_tokens += tokens
+
+	complete_corpus[count] += austen_tokens
+	count += 1
+
+	path = '/Users/viviantan/Documents/Spring2018/LIN_353C/Project/texts/chesterton/'
+	chesterton_tokens = []
+	encodings = all_encodings()
+	for filename in os.listdir(path):
+		# print(filename)
+		# for enc in encodings:
+		#     try:
+		#         with open(path+filename, encoding=enc) as f:
+		#             # print the encoding and the first 500 characters
+		#             print(enc, f.read(200))
+		#     except Exception:
+  #       		pass
+        #cp437
+		file_content = open(path+filename, encoding='cp437').read()
+		tokens = nltk.word_tokenize(file_content)
+		chesterton_tokens += tokens
+
+	# complete_corpus[count] += chesterton_tokens
+	complete_corpus.append(chesterton_tokens)
+	count += 1
+	path = '/Users/viviantan/Documents/Spring2018/LIN_353C/Project/texts/shakespeare/'
+	shakespeare_tokens = []
+	for filename in os.listdir(path):
+		# file_content = open(path+filename).read()
+		file_content = open(path+filename, encoding='cp437').read()
+		tokens = nltk.word_tokenize(file_content)
+		shakespeare_tokens += tokens
+
+	complete_corpus.append(shakespeare_tokens)
+	# complete_corpus += shakespeare_tokens
+	count += 1
+	path = '/Users/viviantan/Documents/Spring2018/LIN_353C/Project/texts/doyle/'
+	doyle_tokens = []
+	for filename in os.listdir(path):
+		# file_content = open(path+filename).read()
+		file_content = open(path+filename, encoding='cp437').read()
+		tokens = nltk.word_tokenize(file_content)
+		doyle_tokens += tokens
+
+	# complete_corpus[count] += doyle_tokens
+	complete_corpus.append(doyle_tokens)
+
+	count += 1
+	path = '/Users/viviantan/Documents/Spring2018/LIN_353C/Project/texts/dostoyevsky/'
+	dostoyevsky_tokens = []
+	for filename in os.listdir(path):
+		# file_content = open(path+filename).read()
+		file_content = open(path+filename, encoding='cp437').read()
+		tokens = nltk.word_tokenize(file_content)
+		dostoyevsky_tokens += tokens
+
+	complete_corpus.append(dostoyevsky_tokens)
+
+	print(len(complete_corpus))
+
+	# with open("complete_corpus.csv", "wb") as f:
+	#     writer = csv.writer(f)
+	#     writer.writerows(complete_corpus)
+
+	return complete_corpus
+	# complete_corpus[count] += dostoyevsky_tokens
+
+
+
+
+
 

@@ -20,5 +20,9 @@ The GUI was made using PyQT5 in Python3
 * NLTK
 * PyQT5
 
+## Maximum Likelihood Estimation
+## Bigrams/Trigrams
+## Evaluation Metrics
+
 # Getting Started
 ## Running the application
