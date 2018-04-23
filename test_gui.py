@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-ZetCode PyQt5 tutorial 
+ZetCode PyQt5 tutorial
 
-This example shows how to use 
+This example shows how to use
 a QComboBox widget.
- 
+
 Author: Jan Bodnar
-Website: zetcode.com 
+Website: zetcode.com
 Last edited: August 2017
 """
 
@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QApplication,
         QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
         QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
         QVBoxLayout, QLabel, QWidget)
-from generate import get_links, get_text_local
+from generate import get_links, get_text_local, count_and_prob_bigram, gen_next_word
 import sys
 
 import nltk
@@ -33,44 +33,68 @@ import time
 authors = ['Jane Austen', 'G.K. Chesterton', 'William Shakespeare', 'Sir Arthur Conan Doyle', 'Fyodor Dostoyevsky']
 corpus_list = [[]]
 
-class Example(QWidget):
+def nltk_2gram(author1_index):
+    global corpus_list
+    tokens = corpus_list[author1_index][:]
+    cfreq_pride_2gram = nltk.ConditionalFreqDist(nltk.bigrams(tokens))
+    cprob_pride_2gram = nltk.ConditionalProbDist(cfreq_pride_2gram, nltk.MLEProbDist)
+    word = tokens[random.randint(0, len(tokens))]
+    print(word)
+    t = ''
+    word_count = 0
+    for i in range(0,100):
+        # print(word, end=' ')
+        # Only add words that have alphanumeric characters
+        valid = re.match('^[a-zA-Z.,-/?;:!0123456789]+', word) is not None
+        if valid:
+            t += re.match('^[a-zA-Z.,-/?;:!0123456789]+', word).group(0) + ' '
+            print(word, end=' ')
+            word = cprob_pride_2gram[word].generate()
+            word_count += 1
+            # print('word count :', word_count)
+        else:
+            print('*', word, end='* ')
+            word = tokens[random.randint(0, len(tokens))]
+            pass
+
+    return t
     
+
+def custom_2gram(author1_index):
+    global corpus_list
+    tokens = corpus_list[author1_index][:]
+    count_dict = {}
+    prob_dict = {}
+    start = tokens[random.randint(0, len(tokens))]
+    count_dict, prob_dict = count_and_prob_bigram(tokens, count_dict, prob_dict)
+    word = start
+    t = ''
+    for i in range(0,100):
+        valid = re.match('^[a-zA-Z.,-/?;:!0123456789]+', word) is not None
+        if valid:
+            t += re.match('^[a-zA-Z.,-/?;:!0123456789]+', word).group(0) + ' '
+            print(word, end=' ')
+            word = gen_next_word(word, prob_dict)
+        else:
+            print('*', word, end='* ')
+            word = tokens[random.randint(0, len(tokens))]
+            pass
+
+    return t
+
+def custom_3gram(author1_index):
+    global corpus_list
+    index = authors.index(text)
+    tokens = corpus_list[index][:]
+    return authors[author1_index]
+
+
+class Example(QWidget):
+
     def __init__(self):
         super().__init__()
-
-        # grid = QGridLayout()
-        # grid.addWidget(self.createSlider(), 0, 0)
-        # grid.addWidget(self.initUI(), 1, 0)
-        # grid.addWidget(self.createSlider(), 2, 0)
-        # grid.addWidget(self.createSlider(), 3, 0)
-        # self.setLayout(grid)
- 
-        # self.resize(400, 300)
-        
         self.initUI()
 
-    
-
-    def createSlider(self):
-        groupBox = QGroupBox("Slider Example")
-        # radio1 = QRadioButton("&Radio horizontal slider")
- 
-        slider = QSlider(Qt.Horizontal)
-        slider.setFocusPolicy(Qt.StrongFocus)
-        slider.setTickPosition(QSlider.TicksBothSides)
-        slider.setTickInterval(10)
-        slider.setSingleStep(1)
-      
-        # radio1.setChecked(True)
- 
-        vbox = QVBoxLayout()
-        # vbox.addWidget(radio1)
-        vbox.addWidget(slider)
-        vbox.addStretch(1)
-        groupBox.setLayout(vbox)
- 
-        return groupBox
-        
     def initUI(self):
 
         # Init corpus
@@ -78,14 +102,13 @@ class Example(QWidget):
         corpus_list = [[]]
         time0 = time.time()
 
-        # corpus_list = get_links(corpus_list)  
-        # TODO: Corpus preprocessing
-        # corpus_list = get_text_local(corpus_list)  
-        # time1 = time.time()
-        # print('elapsed time: %d' % (time1-time0))  
-        # print(len(corpus_list))
+        # corpus_list = get_links(corpus_list)
+        corpus_list = get_text_local(corpus_list)
+        time1 = time.time()
+        print('elapsed time: %d' % (time1-time0))
+        print(len(corpus_list))
 
-        # Make components: 
+        # Make components:
         self.lbl = QLabel("Your text will be displayed here", self)
         self.combo1_lbl = QLabel("Author 1", self)
         self.combo2_lbl = QLabel("Author 2", self)
@@ -113,7 +136,7 @@ class Example(QWidget):
         self.a1_lbl = QLabel("Author 1", self)
         self.a2_lbl = QLabel("Author 2", self)
 
-        self.slider = QSlider(self) 
+        self.slider = QSlider(self)
         self.slider.setOrientation(Qt.Horizontal)
         self.slider.setFocusPolicy(Qt.StrongFocus)
         self.slider.setTickPosition(QSlider.TicksBothSides)
@@ -141,48 +164,38 @@ class Example(QWidget):
         grid.addWidget(self.lbl,5,1)
 
         self.setLayout(grid)
- 
-        # combo1.activated[str].connect(self.onActivated) 
-        # # self.button.activated.connect(self.onActivated)  
-        # self.button.connect(self.pb, SIGNAL("clicked()"),self.onActivated)    
-         
+
+        self.button.clicked.connect(self.onClick)
+
         self.setGeometry(200, 200, 500, 500)
         self.setWindowTitle('Generate text')
         self.show()
-        
-        
-    def onActivated(self, text):
+
+
+    def onClick(self):
         global corpus_list
-        index = authors.index(text)
-        tokens = corpus_list[index][:]
+        technique = ['NLTK-2gram', 'Custom-2gram', 'Custom-3gram']
+        author1_index = authors.index(self.combo1.currentText())
+        author2_index = authors.index(self.combo2.currentText())
+        technique_index = technique.index(self.combo3.currentText())
+        text = ''
 
-        # TODO: replace with choice (NLTK-2gram, Custom-2gram, Custom-3gram)
-        cfreq_pride_2gram = nltk.ConditionalFreqDist(nltk.bigrams(tokens))
-        cprob_pride_2gram = nltk.ConditionalProbDist(cfreq_pride_2gram, nltk.MLEProbDist)
-        word = 'I'
-        t = ''
-        # while len(t) < 100:
-        for i in range(0,100):
-            # print(word, end=' ')
-            # Only add words that have alphanumeric characters
-            valid = re.match('^[a-zA-Z.,-/?!]+', word) is not None
-            # valid = True
-            if valid:
-                t += re.match('^[a-zA-Z.,-/?!]+', word).group(0) + ' '
-                # t += word + ' '
-                word = cprob_pride_2gram[word].generate()
-            else:
-                pass
+        if technique_index == 0:
+            text = nltk_2gram(author1_index)
+        elif technique_index == 1:
+            text = custom_2gram(author1_index)
+        else:
+            text = custom_3gram(author1_index)
 
-
-        self.lbl.setText(t)
+        self.lbl.setText(text)
         self.lbl.setWordWrap(True);
-        self.lbl.adjustSize()  
+        self.lbl.adjustSize()
 
-        
-                
+
+
+
 if __name__ == '__main__':
-    
+
     app = QApplication(sys.argv)
     ex = Example()
     sys.exit(app.exec_())
