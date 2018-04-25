@@ -15,11 +15,8 @@ import encodings
 import pkgutil
 import csv
 
-austen_corpus =  ''
-chesterson_corpus = ''
 
-
-# Returns counts and probabilities of a corpus using bigrames
+# Returns counts and probabilities of a corpus using bigrams
 def count_and_prob_bigram(corpus, count, prob):
     count2 = {}
     # Count bigrams and instantiate probability for each word to 0
@@ -51,44 +48,6 @@ def count_and_prob_bigram(corpus, count, prob):
 def words_to_ngrams(words, n, sep=" "):
     return [sep.join(words[i:i+n]) for i in range(len(words)-n+1)]
 
-def count_and_prob_trigram(corpus, count, prob):
-    # keep track of number of occurances of words
-    count2 = {}
-    # Count trigrams and instantiate probability for each word to 0
-    for word1, word2, word3 in words_to_ngrams(corpus, 3):
-        count[(word1, word2)][word3] += 1
-        if word1 not in count:
-            count[word1] = { }
-            count2[word1] = 0
-            prob[word1] = { }
-
-        if word2 not in count[word1]:
-            #print(word1, word2)
-            count[word1, word2][word2] = 1
-            count2[word1] += 1
-        else:
-            count[word1][word2] += 1
-            count2[word1] += 1
-
-        if word3 not in count[word1][word2]:
-            count[word1][word2][word3] = 1
-        else:
-            count[word1][word2][word3] += 1
-
-    # Recall: To estimate probabilities of bigrams: 
-    # P(word2|word1) = count(word1, word2)/count(word1, ...)
-    # For trigrams: 
-    # P(word3|word1,word2) = count(word1,word2,word3)/count(word1,word2)
-
-    # for each word, calculate probability of trigram(s)
-    for word1 in count:
-        for word2 in count[word1]:
-            # print(word1, word2,':', count[word1][word2]/count2[word1])
-            prob[word1][word2][word3] = count[word1][word2]/count2[word1]
-
-    return count, prob
-
-
 # get the next word based on probabilities
 def gen_next_word(word, prob_dict):
     boundary = []
@@ -117,8 +76,6 @@ def gen_next_word(word, prob_dict):
         boundary, words = (list(t) for t in zip(*sorted(zip(boundary, words))))
 
         # go through boundaries, starting with smallest 
-        # (Note: though this assignment could be completed w/a simple if else, 
-        # I wanted to try and write code that could work with trigrams and up)
         total = 0;
         for i in range(0,len(boundary)):
             if i==0:
@@ -163,8 +120,7 @@ def get_links(complete_corpus):
     for link in chesterton_links: 
         response = request.urlopen(link)
         text += response.read().decode('utf8')
-        sentence = nltk.word_tokenize(text)
-        tokens = nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", sentence)
+        tokens = nltk.word_tokenize(text)
         chesterton_corpus.append(tokens)
 
     complete_corpus.append(chesterton_corpus)
@@ -193,8 +149,7 @@ def get_links(complete_corpus):
     for link in doyle_links: 
         response = request.urlopen(link)
         text += response.read().decode('utf8')
-        sentence = nltk.word_tokenize(text)
-        tokens = nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", sentence)
+        tokens = nltk.word_tokenize(text)
         doyle_corpus.append(tokens)
 
     complete_corpus.append(doyle_corpus)
@@ -210,8 +165,7 @@ def get_links(complete_corpus):
     for link in doestevsky_links: 
         response = request.urlopen(link)
         text += response.read().decode('utf8')
-        sentence = nltk.word_tokenize(text)
-        tokens = nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", sentence)
+        tokens = nltk.word_tokenize(text)
         dostevsky_corpus.append(tokens)
 
     complete_corpus.append(dostevsky_corpus)
@@ -237,7 +191,10 @@ def get_text_local(complete_corpus):
     austen_tokens = []
     for filename in os.listdir(path):
         file_content = open(path+filename, encoding='cp437').read()
-        tokens = nltk.word_tokenize(file_content)
+        sentence = nltk.word_tokenize(file_content)
+        tokens = []
+        for word in sentence:
+            tokens += nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", word)
         austen_tokens += tokens
 
     complete_corpus[count] += austen_tokens
@@ -257,7 +214,10 @@ def get_text_local(complete_corpus):
   #             pass
       
         file_content = open(path+filename, encoding='cp437').read()
-        tokens = nltk.word_tokenize(file_content)
+        sentence = nltk.word_tokenize(file_content)
+        tokens = []
+        for word in sentence:
+            tokens += nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", word)
         chesterton_tokens += tokens
 
     complete_corpus.append(chesterton_tokens)
@@ -267,7 +227,10 @@ def get_text_local(complete_corpus):
     for filename in os.listdir(path):
         # file_content = open(path+filename).read()
         file_content = open(path+filename, encoding='cp437').read()
-        tokens = nltk.word_tokenize(file_content)
+        sentence = nltk.word_tokenize(file_content)
+        tokens = []
+        for word in sentence:
+            tokens += nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", word)
         shakespeare_tokens += tokens
 
     complete_corpus.append(shakespeare_tokens)
@@ -278,7 +241,10 @@ def get_text_local(complete_corpus):
     for filename in os.listdir(path):
         # file_content = open(path+filename).read()
         file_content = open(path+filename, encoding='cp437').read()
-        tokens = nltk.word_tokenize(file_content)
+        sentence = nltk.word_tokenize(file_content)
+        tokens = []
+        for word in sentence:
+            tokens += nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", word)
         doyle_tokens += tokens
 
     # complete_corpus[count] += doyle_tokens
@@ -290,7 +256,10 @@ def get_text_local(complete_corpus):
     for filename in os.listdir(path):
         # file_content = open(path+filename).read()
         file_content = open(path+filename, encoding='cp437').read()
-        tokens = nltk.word_tokenize(file_content)
+        sentence = nltk.word_tokenize(file_content)
+        tokens = []
+        for word in sentence:
+            tokens += nltk.re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", word)
         dostoyevsky_tokens += tokens
 
     complete_corpus.append(dostoyevsky_tokens)
