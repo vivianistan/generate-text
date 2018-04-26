@@ -62,11 +62,31 @@ Here are the methods I wrote:
 ## Markov Chains
 I used [this](https://towardsdatascience.com/simulating-text-with-markov-chains-in-python-1a27e6d13fc6) site as reference.
 
+I implemented a very simple Markov chain to generate text. First I generated pairs of words for the text, then I went through all the word pairs and used a dictionary to store all the words that occur after a chosen word. To generate a next word given a current word, I randomly pick a word from the next word list of the current word. A visual depiction of what this process might look like is shown below. Overall, the theory for this method also sounds very similar to the bigram implementations, but variation in the implementation may affect results.
+
+![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/markov-trump-graph.png "Markov Chain text generation example")
+
+
 ## Mixing texts
 To mix texts I simply generated a random number for each word and compared it to the user inputted ratio. 
 
 ## Evaluation Metrics
-To evaluate the different text generation methods, I surveyed some people on which they thought was best.
+To evaluate the different text generation methods, I surveyed some people and asked them to rate the generated text from 1-10 based on how well the generated text matched the overall style of the original author. 
+
+For generating text from one author, the ratings had a lot of variance, and each of the techniques ended up getting the same average score: 5.6 out of 10. The results can be seen in the figure below. This indicates that each technique performs similarly generating texts from one author, however since I only surveyed 10 people and the data has a lot of variance, the results could change if I poll more people.
+
+![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/graph1.png "Survey results for generating text from one author")
+
+For generating text from two different authors, the scores were on average lower than the scores for generating text from one author only with averages of 4.2 for NLTK-2gram, 4.3 for Custom-2gram, and 3.7 for Markov Chains. These scores indicate that the Custom-2gram is slightly better than NLTK-2gram at mixing different author styles and both 2grams are better than Markov Chains at mixing styles.
+
+![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/graph2.png "Survey results for generating text from two authors")
+
+Interestingly, overall, people rated Markov Chains as the best, followed by the Custom-2gram, with the NLTK-2gram last. This tells me that Markov Chains produce the most cohesive randomly generated text but is bad at mixing them and/or that it’s simply quite difficult to quantitatively assess or distinguish the quality of the random text generation techniques I chose. Given that the theory behind each technique is quite similar, I’m more inclined to believe the latter.
+
+
+![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/graph3.png "Survey results for overall technique quality")
+
+
 
 # Results
 
