@@ -73,6 +73,9 @@ To mix texts I simply generated a random number for each word and compared it to
 ## Evaluation Metrics
 To evaluate the different text generation methods, I surveyed some people and asked them to rate the generated text from 1-10 based on how well the generated text matched the overall style of the original author. 
 
+
+# Results
+
 For generating text from one author, the ratings had a lot of variance, and each of the techniques ended up getting the same average score: 5.6 out of 10. The results can be seen in the figure below. This indicates that each technique performs similarly generating texts from one author, however since I only surveyed 10 people and the data has a lot of variance, the results could change if I poll more people.
 
 ![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/graph1.png "Survey results for generating text from one author")
@@ -86,9 +89,6 @@ Interestingly, overall, people rated Markov Chains as the best, followed by the 
 
 ![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/graph3.png "Survey results for overall technique quality")
 
-
-
-# Results
 
 # Getting Started
 ## Running the application
