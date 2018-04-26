@@ -41,8 +41,11 @@ I used NLTK to get the bigrams for each corpus, get a conditional frequency dist
 Here are the code snippets where you can see this:
 
 `cfreq_2gram = nltk.ConditionalFreqDist(nltk.bigrams(tokens))`
+
 `cprob_2gram = nltk.ConditionalProbDist(cfreq_2gram, nltk.MLEProbDist)`
+
 ...
+
 `word = cprob_gram2[word].generate()`
 
 ### Custom bigram
@@ -52,8 +55,9 @@ P(word2|word1) = count(word1, word2)/count(word1, ...)
 
 Here are the methods I wrote:
 
-`def count_and_prob_bigram(corpus, count, prob)`: returns the count and probabilities of words
-`def gen_next_word(word, prob_dict)`: generates a word given a previous word and a probability dictionary
+* `def count_and_prob_bigram(corpus, count, prob)`: returns the count and probabilities of words
+
+* `def gen_next_word(word, prob_dict)`: generates a word given a previous word and a probability dictionary
 
 ## Markov Chains
 I used [this](https://towardsdatascience.com/simulating-text-with-markov-chains-in-python-1a27e6d13fc6) site as reference.
@@ -68,6 +72,8 @@ To evaluate the different text generation methods, I surveyed some people on whi
 
 # Getting Started
 ## Running the application
-You will have to modify the `path` names in `generate.py` in the `get_text_local(complete_corpus)` method 
+You will have to modify the `path` names in `generate.py` in the `get_text_local(complete_corpus)` method. 
+
+Then you can run:
 
 `python3 generate_text_gui.py`
