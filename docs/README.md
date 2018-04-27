@@ -67,6 +67,7 @@ I implemented a very simple Markov chain to generate text. First I generated pai
 ![GUI Interface](https://github.com/vivianistan/generate-text/blob/master/docs/Pics/markov-trump-graph.png "Markov Chain text generation example")
 
 
+
 ## Mixing texts
 To mix texts I simply generated a random number for each word and compared it to the user inputted ratio. 
 
