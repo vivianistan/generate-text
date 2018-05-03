@@ -92,7 +92,7 @@ def nltk_2gram_mix(author1_index, author2_index, ratio):
             # print('word count :', word_count)
         else:
             print('*', word, end='* ')
-            if r < ratio:
+            if r > ratio:
                 word = tokens1[random.randint(0, len(tokens1))]
             else:
                 word = tokens2[random.randint(0, len(tokens2))]
